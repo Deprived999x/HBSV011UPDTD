@@ -17,7 +17,6 @@ function getVal(completedParams, taxonomy, groupNum, paramName) {
         return null;
     }
     
-    return value;
 }
 
 // Helper function to check if a value is effectively "None"
@@ -53,7 +52,6 @@ function getModifiers(completedParams, taxonomy, groupNum, paramName) {
         }
     });
     
-    return modifiers;
 }
 
 // Enhanced helper function to format text with proper capitalization
@@ -70,7 +68,6 @@ function formatText(text) {
             .join('-');
     }
     
-    return formatWord(text);
 }
 
 // Helper to consistently format a single word with proper capitalization
@@ -108,7 +105,6 @@ function formatHairColor(colorText) {
         }
     }
     
-    return formatText(colorText);
 }
 
 // Helper function to handle Afro hair texture specifically
@@ -120,7 +116,6 @@ function formatHairTexture(texture) {
         return 'Afro-textured';
     }
     
-    return formatText(texture);
 }
 
 // Helper function to handle proper age terminology based on gender and age
@@ -139,17 +134,12 @@ function getAgeDescriptor(age, isFemale) {
         } else if (ageLower.includes('adult') || ageLower.includes('mature') || ageLower.includes('middle') || ageLower.includes('elderly')) {
             return 'woman';
         }
-        return 'woman'; // Default female descriptor
     } else {
         // For males
         if (ageLower.includes('child') || ageLower.includes('young')) {
-            return 'boy';
         } else if (ageLower.includes('teen')) {
-            return 'teenage boy';
         } else if (ageLower.includes('adult') || ageLower.includes('mature') || ageLower.includes('middle') || ageLower.includes('elderly')) {
-            return 'man';
         }
-        return 'man'; // Default male descriptor
     }
 }
 
@@ -364,15 +354,12 @@ function cleanDescription(description) {
         if (/^uni|^us|^uk|^eu|^ut/i.test(word)) {
             return `a ${word}`;
         }
-        return `an ${word}`;
     });
     
     cleaned = cleaned.replace(/\b(a|an)\s+([^aeiou][a-z]*)\b/gi, (match, article, word) => {
         // Special cases where 'an' is correct before a consonant
         if (/^hour|^heir|^honor|^honest/i.test(word)) {
-            return `an ${word}`;
         }
-        return `a ${word}`;
     });
     
     // Fix redundant phrases like "density in density" and "volume in volume"
@@ -427,7 +414,6 @@ function cleanDescription(description) {
     cleaned = cleaned.replace(/styled in a (.+) and with a/gi, "styled in a $1 with a");
     cleaned = cleaned.replace(/\b(broad|wide)\s+(broad|wide)\b/gi, match => {
         const words = match.split(/\s+/);
-        return words[0] === words[1] ? words[0] : `${words[0]}, subtly ${words[1]}`;
     });
     
     // 6. Fix part repetition more comprehensively
@@ -445,9 +431,7 @@ function cleanDescription(description) {
         
         // If first is color and second is size, swap them
         if (!isSize1 && isSize2) {
-            return `${adj2} ${adj1} ${noun}`;
         }
-        return match;
     });
     
     // Final clean-up pass
@@ -455,17 +439,19 @@ function cleanDescription(description) {
     
     // Ensure proper capitalization of first letter of each sentence
     cleaned = cleaned.replace(/([.!?]\s+)([a-z])/g, (match, punctuation, letter) => {
-        return punctuation + letter.toUpperCase();
     });
     
     // Make sure the first letter of the entire text is capitalized
     cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
     
-    return cleaned;
 }
 
 // Generate a natural language description of the character
-try {
+export function generateNaturalLanguageDescription(completedParams, taxonomy) {
+    if (Object.keys(completedParams).length === 0) {
+    }
+    
+    try {
         // Determine gender for pronouns
         const gender = getVal(completedParams, taxonomy, 1, "Gender");
         const isFemale = gender && gender.toLowerCase().includes('female');
@@ -752,30 +738,26 @@ try {
         }
         
         // Apply the cleaning function to fix the description
-        return cleanDescription(description);
         
     } catch (error) {
         console.error("Error in description generation:", error);
-        return "Character description unavailable.";
     }
 }
 
 // Generate a T2I-optimized prompt with error handling
-function generateT2IPrompt(completedParams, taxonomy) {
+export function generateT2IPrompt(completedParams, taxonomy) {
     try {
         // Create a more T2I-focused version with keywords and less natural language
         const description = generateNaturalLanguageDescription(completedParams, taxonomy);
         
         // Add some T2I-specific enhancements - but keep it simple
-        return description + ", professional portrait photography, studio lighting, high detail.";
     } catch (error) {
         console.error("Error generating T2I prompt:", error);
-        return "Error generating prompt.";
     }
 }
 
 // Copy Summary function
-function copySummary(completedParams, taxonomy) {
+export function copySummary(completedParams, taxonomy) {
     // Create a cleaned up JSON representation of all attributes
     const summary = {
         characterDescription: generateNaturalLanguageDescription(completedParams, taxonomy),
@@ -827,16 +809,14 @@ function copySummary(completedParams, taxonomy) {
         });
     }
     
-    return summary;
 }
 
 // Keep the original function name for backward compatibility
-function generateJSONSummary(completedParams, taxonomy) {
-    return copySummary(completedParams, taxonomy);
+export function generateJSONSummary(completedParams, taxonomy) {
 }
 
 // Export this function to make the markdown bio
-function exportSummary(completedParams, taxonomy) {
+export function exportSummary(completedParams, taxonomy) {
     // Create a simple markdown summary
     let markdown = "# Character Summary\n\n";
     
@@ -894,56 +874,8 @@ function exportSummary(completedParams, taxonomy) {
         }
     }
     
-    return markdown;
 }
 
 // Keep the original function name for backward compatibility
-function generateMarkdownBio(completedParams, taxonomy) {
-    return exportSummary(completedParams, taxonomy);
-}
-
-// ======= FINALIZED FUNCTION: generateNaturalLanguageDescription =======
-
-function generateNaturalLanguageDescription(data) {
-    try {
-        let genderRaw = data["Gender"] || "Unknown";
-        let age = data["Age"] || "Unknown";
-
-        let gender;
-        if (age === "Teenage" || age === "Pre-adolescent Child") {
-            gender = genderRaw.toLowerCase().includes("male") ? "boy" : "girl";
-        } else {
-            gender = genderRaw.toLowerCase().includes("male") ? "man" : "woman";
-        }
-
-        const heritage = data["Visual Heritage"] || "Unknown";
-        const build = `${data["Build Intensity"] || ""} ${data["Build"] || ""}`.trim();
-        const height = data["Height"] || "Unknown";
-        const skin = `${data["Skin Tone Intensity"] || ""} ${data["Skin Tone"] || ""}`.trim();
-        const skinTexture = `${data["Skin Texture Visibility"] || ""} ${data["Skin Texture"] || ""}`.trim();
-        const headShape = data["Head Shape"] || "Unknown";
-        const eyeColor = `${data["Eye Color Intensity"] || ""} ${data["Eye Color"] || ""}`.trim();
-        const hairColor = `${data["Hair Color Tone"] || ""} ${data["Hair Color"] || ""}`.trim();
-        const hairTexture = `${data["Hair Quality"] || ""} ${data["Hair Texture"] || ""}`.trim();
-        const hairLength = data["Hair Length"] || "Unknown";
-
-        let desc = `An ${age.toLowerCase()} ${gender} of ${heritage.toLowerCase()} with a ${build.toLowerCase()} build, ${height.toLowerCase()} height, and ${skin.toLowerCase()} skin with ${skinTexture.toLowerCase()} texture. `;
-        desc += `They have a ${headShape.toLowerCase()} head shape, ${eyeColor.toLowerCase()} eyes, and ${hairLength.toLowerCase()} ${hairTexture.toLowerCase()} hair colored ${hairColor.toLowerCase()}.`;
-
-        return refineDescriptionStyle(desc);
-    } catch (e) {
-        return "[Error during generation: " + e + "]";
-    }
-}
-
-function refineDescriptionStyle(text) {
-    text = text.replace(/\b(\w+)\s+\1\b/g, '$1');
-    text = text.replace(/\ba ([aeiouAEIOU])/g, 'an $1');
-    text = text.replace(/\ban ([^aeiouAEIOU])/g, 'a $1');
-    text = text.replace("textured mature texture", "mature skin texture");
-    text = text.replace("normal textured texture", "normal skin texture");
-    text = text.replace(/(\w+ length) (\w+) (\w+) hair/, '$1 $3 $2 hair');
-    text = text.trim();
-    if (!text.endsWith(".")) text += ".";
-    return text.charAt(0).toUpperCase() + text.slice(1);
+export function generateMarkdownBio(completedParams, taxonomy) {
 }
