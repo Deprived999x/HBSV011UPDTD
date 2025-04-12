@@ -465,7 +465,7 @@ function cleanDescription(description) {
 }
 
 // Generate a natural language description of the character
-export try {
+try {
         // Determine gender for pronouns
         const gender = getVal(completedParams, taxonomy, 1, "Gender");
         const isFemale = gender && gender.toLowerCase().includes('female');
@@ -761,7 +761,7 @@ export try {
 }
 
 // Generate a T2I-optimized prompt with error handling
-export function generateT2IPrompt(completedParams, taxonomy) {
+function generateT2IPrompt(completedParams, taxonomy) {
     try {
         // Create a more T2I-focused version with keywords and less natural language
         const description = generateNaturalLanguageDescription(completedParams, taxonomy);
@@ -775,7 +775,7 @@ export function generateT2IPrompt(completedParams, taxonomy) {
 }
 
 // Copy Summary function
-export function copySummary(completedParams, taxonomy) {
+function copySummary(completedParams, taxonomy) {
     // Create a cleaned up JSON representation of all attributes
     const summary = {
         characterDescription: generateNaturalLanguageDescription(completedParams, taxonomy),
@@ -831,12 +831,12 @@ export function copySummary(completedParams, taxonomy) {
 }
 
 // Keep the original function name for backward compatibility
-export function generateJSONSummary(completedParams, taxonomy) {
+function generateJSONSummary(completedParams, taxonomy) {
     return copySummary(completedParams, taxonomy);
 }
 
 // Export this function to make the markdown bio
-export function exportSummary(completedParams, taxonomy) {
+function exportSummary(completedParams, taxonomy) {
     // Create a simple markdown summary
     let markdown = "# Character Summary\n\n";
     
@@ -898,7 +898,7 @@ export function exportSummary(completedParams, taxonomy) {
 }
 
 // Keep the original function name for backward compatibility
-export function generateMarkdownBio(completedParams, taxonomy) {
+function generateMarkdownBio(completedParams, taxonomy) {
     return exportSummary(completedParams, taxonomy);
 }
 
